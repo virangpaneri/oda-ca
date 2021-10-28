@@ -1,11 +1,8 @@
-# To run this using Flask:
-# 1) set the environment variable
-#    $env:FLASK_APP = 'securityControllerAPIserver-keycloak.py'
-# 2) type 'flask run'
-
 from waitress import serve
 from flask import Flask
 from flask import request
+from werkzeug.middleware.dispatcher import DispatcherMiddleware
+from prometheus_client import make_wsgi_app
 import logging
 import os
 import uuid
@@ -58,6 +55,12 @@ kc = Keycloak(kcBaseURL)
 # Flask app --------------------------------------------------------------
 
 app = Flask(__name__)
+
+# Add prometheus wsgi middleware to route /metrics requests
+app.wsgi_app = DispatcherMiddleware(app.wsgi_app, {
+    '/metrics': make_wsgi_app()
+})
+
 @app.route('/listener', methods=['POST'])
 def party_role_listener():
     client = ''

@@ -2,3 +2,4 @@ flask
 waitress
 cloudevents
 requests
+werkzeug
